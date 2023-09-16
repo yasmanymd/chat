@@ -5,6 +5,8 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
+COPY prisma/* ./prisma
+
 RUN yarn install
 
 EXPOSE 3000

@@ -5,3 +5,42 @@ services:
     env_file:
       - .env
     image: yasmany/client-chat:latest
+    depends_on:
+      - postgres
+
+  postgres:
+    env_file:
+      - .env
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+  dbgate:
+    image: dbgate/dbgate
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - 8081:3000
+    volumes:
+      - dbgate_data:/root/.dbgate
+    environment:
+      CONNECTIONS: con1
+
+      LABEL_con1: Postgres
+      SERVER_con1: postgres
+      USER_con1: ${POSTGRES_USER}
+      PASSWORD_con1: ${POSTGRES_PASSWORD}
+      PORT_con1: 5432
+      ENGINE_con1: postgres@dbgate-plugin-postgres
+
+volumes:
+  pg_data:
+  dbgate_data:

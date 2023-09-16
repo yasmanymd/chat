@@ -25,7 +25,7 @@ Chat is an example of real-time chat application with the following features:
 ### Docker
 
 ```shell
-$ docker compose up -d
+docker compose up -d
 ```
 
 Once done below steps you can visit the following endpoints:

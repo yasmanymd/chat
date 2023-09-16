@@ -12,7 +12,10 @@ services:
       - 3000:3000
     environment:
       NODE_ENV: development
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
     stdin_open: true
+    command: sh -c "cd /usr/src/app && yarn prisma migrate dev && yarn dev"
     volumes:
       - ./chat-client:/usr/src/app
       - /usr/src/app/node_modules
