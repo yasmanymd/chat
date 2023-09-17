@@ -21,13 +21,22 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5432:5432
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+
+  redis:
+    env_file:
+      - .env
+    image: redis:latest
+    volumes:
+      - red_data:/var/lib/redis
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
 
   dbgate:
     image: dbgate/dbgate
@@ -42,12 +51,13 @@ services:
       CONNECTIONS: con1
 
       LABEL_con1: Postgres
-      SERVER_con1: postgres
+      SERVER_con1: ${POSTGRES_HOST}
       USER_con1: ${POSTGRES_USER}
       PASSWORD_con1: ${POSTGRES_PASSWORD}
-      PORT_con1: 5432
+      PORT_con1: ${POSTGRES_PORT}
       ENGINE_con1: postgres@dbgate-plugin-postgres
 
 volumes:
   pg_data:
   dbgate_data:
+  red_data: {}
