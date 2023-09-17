@@ -1,10 +1,17 @@
 version: '3.8'
 
 services:
-  client-chat:
+  chat-client:
     env_file:
       - .env
-    image: yasmany/client-chat:latest
+    image: yasmany/chat-client:latest
+    depends_on:
+      - postgres
+
+  chat-server:
+    env_file:
+      - .env
+    image: yasmany/chat-server:latest
     depends_on:
       - postgres
 

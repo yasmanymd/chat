@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  client-chat:
+  chat-client:
     env_file:
       - .env
     build:
@@ -20,3 +20,20 @@ services:
       - ./chat-client:/usr/src/app
       - /usr/src/app/node_modules
       - /usr/src/app/.next
+
+  chat-server:
+    env_file:
+      - .env
+    build:
+      context: ./chat-server
+      target: development
+    ports:
+      - 3001:3000
+      - 9229:9229
+    restart: always
+    stdin_open: true
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./chat-server:/usr/src/app
+      - /usr/src/app/node_modules
