@@ -48,6 +48,7 @@ const authOptions: AuthOptions = {
       session.user.email = token.email;
       session.user.firstname = token.firstname;
       session.user.lastname = token.lastname;
+      session.user.accessToken = token;
       return session;
     },
     jwt({ token, account, user }) {

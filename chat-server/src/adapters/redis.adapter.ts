@@ -10,8 +10,7 @@ export class RedisIoAdapter extends IoAdapter {
         methods: ["GET", "POST"],
         credentials: true,
         transports: ['websocket', 'polling'],
-      },
-      allowEIO3: true
+      }
     });
     const pubClient = new RedisClient({
       host: process.env.REDIS_HOST,
