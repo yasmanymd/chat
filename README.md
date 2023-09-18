@@ -31,6 +31,8 @@ docker compose up -d
 Once done below steps you can visit the following endpoints:
 
 * Chat Client: [http://localhost:3000].
+* Chat Server API Docs in Swagger: [http://localhost:3001/api].
+* Access to DB in Postgres: [http://localhost:8081]
 
 
 ### Happy coding
