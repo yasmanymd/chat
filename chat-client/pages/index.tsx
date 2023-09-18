@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import Lobby from "../components/lobby";
 const { io } = require("socket.io-client");
 
 export default function Home() {
@@ -25,13 +26,6 @@ export default function Home() {
   });
 
   return (
-    <div>
-      {status === 'authenticated' && data != null && (
-        <>
-          <h2>Welcome {data.user.firstname}</h2>
-          <p>User Id: {data.user.id}</p>
-        </>
-      )}
-    </div>
+    <Lobby></Lobby>
   );
 }
