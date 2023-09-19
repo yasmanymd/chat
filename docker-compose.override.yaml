@@ -41,3 +41,42 @@ services:
     volumes:
       - ./chat-server:/usr/src/app
       - /usr/src/app/node_modules
+
+  messages:
+    env_file:
+      - .env
+    build:
+      context: ./messages
+      target: development
+    ports:
+      - 9230:9229
+    restart: always
+    stdin_open: true
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./messages:/usr/src/app
+      - /usr/src/app/node_modules
+
+  dbgate:
+    image: dbgate/dbgate
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - 8081:3000
+    volumes:
+      - dbgate_data:/root/.dbgate
+    environment:
+      CONNECTIONS: con1,con2
+
+      LABEL_con1: Postgres
+      SERVER_con1: ${POSTGRES_HOST}
+      USER_con1: ${POSTGRES_USER}
+      PASSWORD_con1: ${POSTGRES_PASSWORD}
+      PORT_con1: ${POSTGRES_PORT}
+      ENGINE_con1: postgres@dbgate-plugin-postgres
+
+      LABEL_con2: MongoDB
+      URL_con2: ${MONGO_DSN}
+      ENGINE_con2: mongo@dbgate-plugin-mongo

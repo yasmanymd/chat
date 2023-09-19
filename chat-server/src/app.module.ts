@@ -1,18 +1,38 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { MessageModule } from './message-events/message.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '../config/config.service';
+import { MessageController } from './message.controller';
+import { ConfigModule } from '../config/config.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule,
+    ClientsModule.registerAsync([
+      {
+        name: 'MESSAGE_SERVICE',
+        imports: [ConfigModule],
+        useFactory: async (configService: ConfigService) => {
+          return ({
+            transport: Transport.RMQ,
+            options: {
+              urls: [configService.get('rabbitmq_dsn')],
+              queue: 'messages_queue',
+              queueOptions: {
+                durable: false
+              },
+            }
+          });
+        },
+        inject: [ConfigService]
+      }
+    ]),
     MessageModule,],
-  controllers: [AppController, RoomController],
+  controllers: [AppController, RoomController, MessageController],
   providers: [AppService, RoomService],
 })
 export class AppModule { }
