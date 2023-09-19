@@ -2,7 +2,7 @@ import { Avatar, Box, Checkbox, Container, Grid, List, ListItem, ListItemAvatar,
 import ChatRooms from "./chatrooms";
 import Chat from "./chat";
 import Header from "./header";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getRooms } from "../queries/rooms";
 
@@ -16,7 +16,11 @@ export type IRoom = {
   name: string
 };
 
-export default function Lobby() {
+export type ILobbyProps = {
+  socket: any
+};
+
+const Lobby: FC<ILobbyProps> = ({ socket }) => {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [rooms, setRooms] = useState<IRoom[]>([]);
 
@@ -31,17 +35,24 @@ export default function Lobby() {
     })();
   }, []);
 
+  const handleSetSelectedRoom = (room: string) => {
+    setSelectedRoom(room);
+    socket.emit('move', { leaving: selectedRoom, joining: room });
+  }
+
   return (
     <Box>
       <Header />
       <Grid container sx={{ paddingTop: '64px' }}>
         <Grid item xs={2} sx={containerStyle}>
-          <ChatRooms rooms={rooms} setRooms={setRooms} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
+          <ChatRooms rooms={rooms} setRooms={setRooms} selectedRoom={selectedRoom} setSelectedRoom={handleSetSelectedRoom} />
         </Grid>
         <Grid item xs={10} padding={2} sx={{ height: 'calc(100vh - 70px)' }}>
-          <Chat participants={["yasmany", "marien", "jason", "alex", "user1", "user2", "user3"]} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom}></Chat>
+          <Chat socket={socket} selectedRoom={selectedRoom} setSelectedRoom={handleSetSelectedRoom}></Chat>
         </Grid>
       </Grid>
     </Box>
   );
 }
+
+export default Lobby;

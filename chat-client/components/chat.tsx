@@ -1,20 +1,12 @@
-import { Close, Favorite, GroupRounded, MoreVertRounded, Send, Share } from "@mui/icons-material";
-import { Avatar, Box, Card, CardActions, CardContent, CardHeader, Divider, Grid, IconButton, Paper, TextField, Typography, useTheme } from "@mui/material";
+import { Close, GroupRounded, Send } from "@mui/icons-material";
+import { Avatar, Box, CardHeader, Grid, IconButton, Paper, useTheme } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
 import { grey } from '@mui/material/colors';
 import {
   MenuButtonBold,
   MenuButtonItalic,
   MenuButtonStrikethrough,
-  MenuButtonSubscript,
-  MenuButtonSuperscript,
-  MenuButtonTextColor,
-  MenuButtonUnderline,
   MenuControlsContainer,
-  MenuDivider,
-  MenuSelectFontFamily,
-  MenuSelectHeading,
-  MenuSelectTextAlign,
   RichTextEditor,
   type RichTextEditorRef,
 } from "mui-tiptap";
@@ -23,17 +15,39 @@ import MessagesViewer from "./messages-viewer";
 
 type IChatProps = {
   selectedRoom: string | null,
-  participants: string[] | null,
-  setSelectedRoom: Dispatch<SetStateAction<string>>
+  setSelectedRoom: Dispatch<SetStateAction<string>>,
+  socket: any
 }
 
-const Chat: FC<IChatProps> = ({ selectedRoom, setSelectedRoom, participants }) => {
+const Chat: FC<IChatProps> = ({ selectedRoom, setSelectedRoom, socket }) => {
   if (!selectedRoom) {
     return null;
   }
 
-  const theme = useTheme();
+  const [participants, setParticipants] = useState<string[]>([]);
   const rteRef = useRef<RichTextEditorRef>(null);
+
+  socket.off("participants");
+  socket.on('participants', (msg: { participants: string[] }) => {
+    setParticipants(msg.participants);
+  });
+
+  socket.off("userin");
+  socket.on('userin', (msg: { email: string }) => {
+    let list = [...participants];
+    if (list.findIndex(item => item === msg.email) == -1) {
+      list.push(msg.email);
+      setParticipants(list);
+    }
+  });
+
+  socket.off("userout");
+  socket.on('userout', (msg: { email: string }) => {
+    let list = participants.filter(item => item != msg.email);
+    if (list.length != participants.length) {
+      setParticipants(list);
+    }
+  });
 
   const participantsHeader = () => {
     if (!participants || participants.length == 0) {
@@ -55,8 +69,8 @@ const Chat: FC<IChatProps> = ({ selectedRoom, setSelectedRoom, participants }) =
   const handleSend = () => {
     const value = rteRef.current?.editor?.getHTML();
     if (value && value != '<p></p>') {
-      console.log(value);
       rteRef.current?.editor?.commands.clearContent();
+      socket.emit('msg', { room: selectedRoom, message: value });
     }
   }
 
@@ -82,12 +96,23 @@ const Chat: FC<IChatProps> = ({ selectedRoom, setSelectedRoom, participants }) =
         sx={{ backgroundColor: grey[300] }}
       />
       <Box sx={{ flexGrow: 1, overflowY: 'auto', padding: 1 }}>
-        <MessagesViewer messages={Array(40).fill(1).map((v, i) => ({ message: `<p>Charlie ${i}, otro de los tuyos 🤣🤣🤣</p>`, author: 'Yasmany', email: 'yasmany@gmail.com', time: new Date() }))} />
+        <MessagesViewer socket={socket} />
       </Box>
       <Grid container sx={{ alignItems: 'center', resize: 'vertical', padding: 1 }}>
         <Grid item xs={11.5}>
           <RichTextEditor
             ref={rteRef}
+            editorProps={{
+              handleDOMEvents: {
+                keydown: (view, event) => {
+                  if (event.key === "Enter") {
+                    handleSend();
+                    event.preventDefault();
+                  }
+                  return false;
+                }
+              }
+            }}
             extensions={[StarterKit]} // Or any Tiptap extensions you wish!
             // Optionally include `renderControls` for a menu-bar atop the editor:
             renderControls={() => (

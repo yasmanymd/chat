@@ -3,21 +3,36 @@ import { green, grey } from "@mui/material/colors";
 import StarterKit from "@tiptap/starter-kit";
 import { RichTextReadOnly } from "mui-tiptap";
 import { useSession } from "next-auth/react";
-import { FC, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import moment from "moment";
 
 type IMessage = {
   message: string;
-  author: string;
   email: string;
   time: Date;
 };
 
-type IMessagesViewerProps = { messages: IMessage[] };
+type IMessagesViewerProps = {
+  socket: any
+};
 
-const MessagesViewer: FC<IMessagesViewerProps> = ({ messages }) => {
+const MessagesViewer: FC<IMessagesViewerProps> = ({ socket }) => {
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const session = useSession();
   const email = session.data?.user?.email;
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  socket.off("msgToRoom");
+  socket.on('msgToRoom', (msg: IMessage) => {
+    console.log(msg)
+    setMessages([...messages, msg]);
+  });
 
   return (
     <List sx={{
@@ -26,7 +41,8 @@ const MessagesViewer: FC<IMessagesViewerProps> = ({ messages }) => {
       display: 'flex',
       flexDirection: 'column',
       padding: 1
-    }}>
+    }}
+      ref={listRef}>
       {messages?.map((msg, index) => (
         <Paper key={index} elevation={1} sx={{
           padding: 1,
@@ -37,7 +53,7 @@ const MessagesViewer: FC<IMessagesViewerProps> = ({ messages }) => {
           alignSelf: msg.email === email ? 'flex-end' : 'flex-start',
           position: 'relative'
         }}>
-          <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{msg.author}</div>
+          <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{msg.email}</div>
           <div>
             <RichTextReadOnly
               content={msg.message}
