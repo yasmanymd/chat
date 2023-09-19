@@ -5,7 +5,7 @@ import { IRoom } from './interfaces/rooms/room.interface';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { CreateUpdateRoomRequestDto } from './interfaces/rooms/create-update-room-request.dto';
 
-@Controller('/rooms')
+@Controller('/api/rooms')
 export class RoomController {
   constructor(private readonly roomService: RoomService) { }
 

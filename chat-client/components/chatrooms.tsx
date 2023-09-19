@@ -2,6 +2,8 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { IRoom } from "./lobby";
 import { GroupAdd } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { createRoom } from "../queries/rooms";
 
 const containerStyle = {
   width: '100%',
@@ -27,16 +29,24 @@ const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, 
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
-  const handleAddRoom = (name: string) => {
+  const handleAddRoom = async (name: string) => {
     if (name && rooms.findIndex(room => room.name === name) < 0) {
-      let list = [...rooms];
-      list.push({ name });
-      setRooms(list);
-      setSelectedRoom(name);
+      const result = await createRoom({ name });
+
+      if (result?.errors) {
+        toast.error('Error creating room.');
+      } else {
+        toast.success('Room created.');
+        let list = [...rooms];
+        list.push({ name });
+        setRooms(list);
+        setSelectedRoom(name);
+        setRoomName('');
+        handleCloseDialog();
+      }
     }
-    handleCloseDialog();
-    setRoomName('');
   };
+
   const handleSelectedRoom = (selectedRoom: string) => {
     setSelectedRoom(selectedRoom);
   }
@@ -57,7 +67,7 @@ const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, 
   return (
     <>
       <List sx={containerStyle}>
-        <ListItem>
+        <ListItem key={0}>
           <Grid container sx={{ display: 'flex', alignItems: 'center' }}>
             <Grid item xs={6}><Typography>Rooms</Typography></Grid>
             <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -71,7 +81,7 @@ const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, 
         </ListItem>
         <Divider />
         {rooms?.map((room, index) => (
-          <ListItemButton selected={selectedRoom === room.name}>
+          <ListItemButton key={index + 1} selected={selectedRoom === room.name}>
             <ListItemText id={`${index}`} primary={`${room.name}`} onClick={() => handleSelectedRoom(room.name)} />
           </ListItemButton>
         ))}

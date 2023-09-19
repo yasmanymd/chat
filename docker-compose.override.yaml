@@ -14,6 +14,7 @@ services:
       NODE_ENV: development
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      CHAT_API_URL: ${CHAT_API_URL}
     stdin_open: true
     command: sh -c "cd /usr/src/app && yarn prisma migrate dev && yarn dev"
     volumes:

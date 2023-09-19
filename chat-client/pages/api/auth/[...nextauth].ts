@@ -13,7 +13,7 @@ const loginUserSchema = z.object({
 
 const prisma = new PrismaClient();
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({

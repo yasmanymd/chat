@@ -28,7 +28,7 @@ const MessagesViewer: FC<IMessagesViewerProps> = ({ messages }) => {
       padding: 1
     }}>
       {messages?.map((msg, index) => (
-        <Paper elevation={1} sx={{
+        <Paper key={index} elevation={1} sx={{
           padding: 1,
           paddingBottom: 2,
           margin: 1,

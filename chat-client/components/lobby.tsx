@@ -2,7 +2,9 @@ import { Avatar, Box, Checkbox, Container, Grid, List, ListItem, ListItemAvatar,
 import ChatRooms from "./chatrooms";
 import Chat from "./chat";
 import Header from "./header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { getRooms } from "../queries/rooms";
 
 const containerStyle = {
   width: '100%',
@@ -16,7 +18,18 @@ export type IRoom = {
 
 export default function Lobby() {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const [rooms, setRooms] = useState<IRoom[]>(Array(30).fill(1).map((v, i) => ({ name: `Prueba ${i}` })));
+  const [rooms, setRooms] = useState<IRoom[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const result = await getRooms();
+      if (result.status === 200) {
+        setRooms(result.data);
+      } else {
+        toast.error('Error getting rooms.');
+      }
+    })();
+  }, []);
 
   return (
     <Box>
