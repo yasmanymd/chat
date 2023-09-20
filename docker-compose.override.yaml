@@ -42,11 +42,11 @@ services:
       - ./chat-server:/usr/src/app
       - /usr/src/app/node_modules
 
-  messages:
+  api:
     env_file:
       - .env
     build:
-      context: ./messages
+      context: ./api
       target: development
     ports:
       - 9230:9229
@@ -55,7 +55,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ./messages:/usr/src/app
+      - ./api:/usr/src/app
       - /usr/src/app/node_modules
 
   dbgate:

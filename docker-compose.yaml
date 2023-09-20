@@ -8,10 +8,10 @@ services:
     depends_on:
       - postgres
 
-  messages:
+  api:
     env_file:
       - .env
-    image: yasmany/messages:latest
+    image: yasmany/api:latest
     depends_on:
       - rabbitmq
       - mongo
