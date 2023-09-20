@@ -21,6 +21,8 @@ services:
       - .env
     image: yasmany/chat-server:latest
     depends_on:
+      - redis
+      - rabbitmq
       - postgres
 
   postgres:
