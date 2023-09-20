@@ -75,6 +75,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
       message: payload.message,
       time: new Date().getTime()
     }).subscribe();
+    client.broadcast.emit('unread', { room: payload.room });
     return this.server.to(payload.room).emit('msgToRoom', { email, message: payload.message, time: new Date() });
   }
 

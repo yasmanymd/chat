@@ -45,10 +45,18 @@ const Lobby: FC<ILobbyProps> = ({ socket }) => {
       <Header />
       <Grid container sx={{ paddingTop: '64px' }}>
         <Grid item xs={2} sx={containerStyle}>
-          <ChatRooms rooms={rooms} setRooms={setRooms} selectedRoom={selectedRoom} setSelectedRoom={handleSetSelectedRoom} />
+          <ChatRooms
+            socket={socket}
+            rooms={rooms}
+            setRooms={setRooms}
+            selectedRoom={selectedRoom}
+            setSelectedRoom={handleSetSelectedRoom} />
         </Grid>
         <Grid item xs={10} padding={2} sx={{ height: 'calc(100vh - 70px)' }}>
-          <Chat socket={socket} selectedRoom={selectedRoom} setSelectedRoom={handleSetSelectedRoom}></Chat>
+          <Chat
+            socket={socket}
+            selectedRoom={selectedRoom}
+            setSelectedRoom={handleSetSelectedRoom} />
         </Grid>
       </Grid>
     </Box>

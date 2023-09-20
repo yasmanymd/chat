@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, TextField, Typography } from "@mui/material";
+import { Badge, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Grid, IconButton, List, ListItem, ListItemButton, ListItemText, TextField, Typography } from "@mui/material";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { IRoom } from "./lobby";
 import { GroupAdd } from "@mui/icons-material";
@@ -12,15 +12,25 @@ const containerStyle = {
 };
 
 type IChatRoomsProps = {
+  socket: any,
   rooms: IRoom[],
   setRooms: Dispatch<SetStateAction<IRoom[]>>,
   selectedRoom: string | null,
   setSelectedRoom: Dispatch<SetStateAction<string>>
 };
 
-const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, setRooms }) => {
+const ChatRooms: FC<IChatRoomsProps> = ({ socket, selectedRoom, setSelectedRoom, rooms, setRooms }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [roomName, setRoomName] = useState<string>('');
+  const [unread, setUnread] = useState<Set<string>>(new Set());
+
+  socket.off("unread");
+  socket.on('unread', (msg: { room: string }) => {
+    if (selectedRoom != msg.room) {
+      unread.add(msg.room);
+      setUnread(new Set(unread));
+    }
+  });
 
   const handleClickOpen = () => {
     setOpenDialog(true);
@@ -29,6 +39,7 @@ const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, 
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
+
   const handleAddRoom = async (name: string) => {
     if (name && rooms.findIndex(room => room.name === name) < 0) {
       const result = await createRoom({ name });
@@ -48,6 +59,8 @@ const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, 
   };
 
   const handleSelectedRoom = (selectedRoom: string) => {
+    unread.delete(selectedRoom);
+    setUnread(new Set(unread));
     setSelectedRoom(selectedRoom);
   }
 
@@ -82,7 +95,12 @@ const ChatRooms: FC<IChatRoomsProps> = ({ selectedRoom, setSelectedRoom, rooms, 
         <Divider />
         {rooms?.map((room, index) => (
           <ListItemButton key={index + 1} selected={selectedRoom === room.name}>
-            <ListItemText id={`${index}`} primary={`${room.name}`} onClick={() => handleSelectedRoom(room.name)} />
+            <Badge color="primary" variant="dot" invisible={!unread?.has(room.name)} anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}>
+              <ListItemText id={`${index}`} primary={`${room.name}`} onClick={() => handleSelectedRoom(room.name)} />
+            </Badge>
           </ListItemButton>
         ))}
       </List>
