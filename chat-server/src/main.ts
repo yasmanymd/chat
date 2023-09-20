@@ -18,7 +18,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.useWebSocketAdapter(new RedisIoAdapter(app));
-  app.useStaticAssets(join(__dirname, '..', 'resource'));
   await app.listen(3000);
 }
 bootstrap();

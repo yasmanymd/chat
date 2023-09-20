@@ -26,6 +26,7 @@ const Chat: FC<IChatProps> = ({ selectedRoom, setSelectedRoom, socket }) => {
 
   const [participants, setParticipants] = useState<string[]>([]);
   const rteRef = useRef<RichTextEditorRef>(null);
+  rteRef['selectedRoom'] = selectedRoom;
 
   socket.off("participants");
   socket.on('participants', (msg: { participants: string[] }) => {
@@ -70,7 +71,7 @@ const Chat: FC<IChatProps> = ({ selectedRoom, setSelectedRoom, socket }) => {
     const value = rteRef.current?.editor?.getHTML();
     if (value && value != '<p></p>') {
       rteRef.current?.editor?.commands.clearContent();
-      socket.emit('msg', { room: selectedRoom, message: value });
+      socket.emit('msg', { room: rteRef['selectedRoom'], message: value });
     }
   }
 

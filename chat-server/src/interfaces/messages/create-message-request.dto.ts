@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMessageRequestDto {
-  @ApiProperty({ example: 'Room 1' })
-  name: string;
-
-  _id: string;
   @ApiProperty({ example: 'yasmany@gmail.com' })
   sender: string;
 

@@ -34,6 +34,12 @@ const MessagesViewer: FC<IMessagesViewerProps> = ({ socket }) => {
     setMessages([...messages, msg]);
   });
 
+  socket.off("history");
+  socket.on('history', (msg: { messages: any[] }) => {
+    setMessages(msg.messages.map(m => ({ message: m.message, email: m.sender, time: new Date(m.time) }) as IMessage));
+    listRef.current.scrollTop = listRef.current.scrollHeight;
+  });
+
   return (
     <List sx={{
       height: '100%',

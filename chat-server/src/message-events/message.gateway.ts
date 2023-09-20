@@ -7,12 +7,14 @@ import {
   OnGatewayDisconnect,
   WsResponse,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Server } from 'ws';
+import { ClientProxy } from '@nestjs/microservices';
 
 @WebSocketGateway({ namespace: '/chat' })
 export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  constructor(@Inject('MESSAGE_SERVICE') private readonly messageService: ClientProxy) { }
 
   @WebSocketServer() server: Server;
 
@@ -57,6 +59,9 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
 
       this.logger.log(`Sendind participants ${participants} to user ${email}`);
       client.emit('participants', { participants: participants });
+      this.messageService.send({ cmd: 'messages_search_by_room' }, payload.joining).subscribe(res => {
+        client.emit('history', { messages: res.data });
+      });
       this.logger.log(`Notifying user ${email} is joining to room ${payload.joining}`);
       client.to(payload.joining).emit('userin', { email });
     }
@@ -66,6 +71,12 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   public handleMessage(client: Socket, payload: { room: string, message: string }): Promise<WsResponse<any>> {
     const email = this.state.connections[client.id].email;
     this.logger.log(`User ${email} sending message to room ${payload.room}`);
+    this.messageService.send({ cmd: 'message_create' }, {
+      sender: email,
+      room: payload.room,
+      message: payload.message,
+      time: new Date().getTime()
+    }).subscribe();
     return this.server.to(payload.room).emit('msgToRoom', { email, message: payload.message, time: new Date() });
   }
 
