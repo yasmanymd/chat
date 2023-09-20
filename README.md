@@ -1,6 +1,6 @@
 # Building a Scalable Chat App with Microservices and Docker Compose
 
-This project will delve into the architecture and components of a chat application designed for scalability using a microservices approach. Docker Compose is used for container orchestration. It covers the technologies involved and how each component connects to provide a seamless chat experience.
+This project will delve into the architecture and components of a chat application designed for scalability using a microservices approach. Docker Compose is used for container orchestration. It covers the technologies involved and how each component connects to provide a chat experience.
 
 ## Technologies Used
 
