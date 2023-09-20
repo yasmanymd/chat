@@ -1,6 +1,8 @@
 import { useSession } from "next-auth/react";
 import Lobby from "../components/lobby";
+import { ToastContainer } from "react-toastify";
 const { io } = require("socket.io-client");
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Home() {
   const { data, status } = useSession();
@@ -9,7 +11,10 @@ export default function Home() {
     socket.emit('auth', { email: data.user.email })
 
     return (
-      <Lobby socket={socket}></Lobby>
+      <>
+        <Lobby socket={socket}></Lobby>
+        <ToastContainer />
+      </>
     );
   }
 
