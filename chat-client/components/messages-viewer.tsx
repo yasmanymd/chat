@@ -30,7 +30,6 @@ const MessagesViewer: FC<IMessagesViewerProps> = ({ socket }) => {
 
   socket.off("msgToRoom");
   socket.on('msgToRoom', (msg: IMessage) => {
-    console.log(msg)
     setMessages([...messages, msg]);
   });
 

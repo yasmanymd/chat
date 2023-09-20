@@ -30,8 +30,6 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   public auth(client: Socket, payload: { email: string }) {
     this.logger.log(`Registering ${payload.email} with ${client.id}`);
     this.state.connections[client.id] = { email: payload.email, room: '' };
-    this.logger.log(`Status of connections: `);
-    this.logger.log(this.state.connections);
   }
 
   @SubscribeMessage('move')

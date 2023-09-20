@@ -4,6 +4,7 @@ import { ResponseDto } from './interfaces/common/response.dto';
 import { IRoom } from './interfaces/rooms/room.interface';
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { CreateUpdateRoomRequestDto } from './interfaces/rooms/create-update-room-request.dto';
+import { Observable, first, from, map, of } from 'rxjs';
 
 @Controller('/api/rooms')
 export class RoomController {
@@ -14,18 +15,20 @@ export class RoomController {
     type: ResponseDto<IRoom[]>,
     description: 'List of rooms'
   })
-  async roomsList(): Promise<ResponseDto<IRoom[]>> {
-    let result: ResponseDto<IRoom[]>;
-
-    const rooms = await this.roomService.getRooms()
-    result = {
-      status: HttpStatus.OK,
-      message: 'rooms_list_success',
-      data: rooms,
-      errors: null
-    };
-
-    return result;
+  async roomsList(): Promise<Observable<ResponseDto<IRoom[]>>> {
+    try {
+      const res = this.roomService.getRooms();
+      return from(res).pipe(
+        map((r: ResponseDto<IRoom[]>) => r)
+      );
+    } catch (err) {
+      return of({
+        status: HttpStatus.PRECONDITION_FAILED,
+        message: 'room_list_precondition_failed',
+        data: null,
+        errors: [{ message: err.message }]
+      });
+    }
   }
 
   @Post()
@@ -34,18 +37,13 @@ export class RoomController {
   })
   async createRoom(
     @Body() roomRequest: CreateUpdateRoomRequestDto
-  ): Promise<ResponseDto<IRoom>> {
+  ): Promise<Observable<ResponseDto<IRoom>>> {
     let result: ResponseDto<IRoom>;
 
     if (roomRequest) {
       try {
-        const createdRoom = await this.roomService.createRoom(roomRequest);
-        result = {
-          status: HttpStatus.CREATED,
-          message: 'room_create_success',
-          data: createdRoom,
-          errors: null
-        };
+        const res = this.roomService.createRoom(roomRequest);
+        return from(res).pipe(map((createdRoom: ResponseDto<IRoom>) => createdRoom));
       } catch (err) {
         result = {
           status: HttpStatus.PRECONDITION_FAILED,
@@ -63,6 +61,6 @@ export class RoomController {
       };
     }
 
-    return result;
+    return of(result);
   }
 }

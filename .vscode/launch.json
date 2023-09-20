@@ -14,6 +14,17 @@
       "restart": true,
       "localRoot": "${workspaceFolder}/chat-server",
       "remoteRoot": "/usr/src/app"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Api Debugger",
+      "address": "localhost",
+      "port": 9230,
+      "sourceMaps": true,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/api",
+      "remoteRoot": "/usr/src/app"
     }
   ]
 }

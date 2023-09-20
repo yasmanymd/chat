@@ -1,23 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { IRoom } from './interfaces/rooms/room.interface';
+import { ClientProxy } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
+import { ResponseDto } from './interfaces/common/response.dto';
 
 @Injectable()
 export class RoomService {
   private rooms: IRoom[];
 
-  constructor() {
+  constructor(@Inject('MESSAGE_SERVICE') private readonly messageService: ClientProxy) {
     this.rooms = [];
   }
 
-  public async getRooms(): Promise<IRoom[]> {
-    return this.rooms;
+  public getRooms(): Observable<ResponseDto<IRoom[]>> {
+    return this.messageService.send({ cmd: 'room_list' }, {});
   }
 
-  public async createRoom(room: IRoom): Promise<IRoom> {
-    if (this.rooms.findIndex(item => item.name == room.name) >= 0) {
-      throw new Error('Room already exists.');
-    }
-    this.rooms.push(room);
-    return room;
+  public createRoom(room: IRoom): Observable<ResponseDto<IRoom>> {
+    return this.messageService.send({ cmd: 'room_create' }, room);
   }
 }
